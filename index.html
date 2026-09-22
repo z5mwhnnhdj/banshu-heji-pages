@@ -1,0 +1,686 @@
+<!-- v1.3.3 · 2026-09-22 · 删废设备切换按钮 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#eef2f1">
+<meta name="color-scheme" content="light">
+<title>初中数学压轴题动态板书 · 教研档案</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23eef2f1'/%3E%3Cpath d='M3 26 Q16 -6 29 26' fill='none' stroke='%233f7d5c' stroke-width='2.4'/%3E%3Cline x1='16' y1='2' x2='16' y2='28' stroke='%231c2622' stroke-width='1' stroke-dasharray='3 3'/%3E%3Ccircle cx='16' cy='4.4' r='3.4' fill='%23c23a2b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="preconnect" href="https://media.doubao.com">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+:root{
+  --paper:#eef2f1;          /* 坐标纸底 */
+  --card:#fbfbf8;           /* 档案纸面 */
+  --ink:#1c2622;            /* 墨色 */
+  --ink-soft:#43504b;       /* 次级文字 */
+  --ink-faint:#6d7a75;      /* 弱文字 */
+  --grid-line:#d9e0de;      /* 坐标网线 */
+  --rule:#c8d1ce;           /* 发丝线 */
+  --jade:#3f7d5c;           /* 苔绿（函数/完成） */
+  --jade-soft:#e7f0ea;
+  --vermilion:#c23a2b;      /* 朱笔红（唯一强调） */
+  --vermilion-soft:#fbeeec;
+  --serif:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --sans:"Noto Sans SC",-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.7;
+  min-height:100vh;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+/* 坐标纸网格：固定不滚动 */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:
+    linear-gradient(to right, rgba(28,38,34,.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(28,38,34,.045) 1px, transparent 1px),
+    linear-gradient(to right, rgba(28,38,34,.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(28,38,34,.08) 1px, transparent 1px);
+  background-size:28px 28px,28px 28px,140px 140px,140px 140px;
+}
+a{color:inherit;}
+.skip-link{position:absolute;left:-999px;top:0;background:var(--ink);color:#fff;padding:10px 18px;z-index:2000;border-radius:0 0 4px 0;}
+.skip-link:focus{left:0;}
+:focus-visible{outline:2px solid var(--vermilion);outline-offset:2px;border-radius:2px;}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px;}
+
+/* ===== 顶栏 ===== */
+.topbar{border-bottom:1px solid var(--rule);background:rgba(238,242,241,.86);backdrop-filter:blur(4px);}
+.topbar-inner{max-width:1080px;margin:0 auto;padding:11px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.brand{font-family:var(--serif);font-weight:700;font-size:15px;letter-spacing:.06em;display:flex;align-items:center;gap:9px;white-space:nowrap;}
+.brand svg{flex:none;}
+
+/* ===== Hero ===== */
+.hero{display:grid;grid-template-columns:1.35fr 1fr;gap:40px;align-items:center;padding:64px 0 40px;}
+.hero h1{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.4vw,44px);line-height:1.28;letter-spacing:.01em;color:var(--ink);text-wrap:balance;}
+.hero .sub{margin-top:16px;font-size:16.5px;color:var(--ink-soft);max-width:34em;text-wrap:pretty;}
+.scene{margin-top:22px;display:flex;flex-direction:column;gap:7px;font-size:14px;color:var(--ink-faint);}
+.scene li{list-style:none;display:flex;gap:10px;align-items:baseline;}
+.scene li::before{content:"";width:6px;height:6px;background:var(--jade);flex:none;transform:translateY(-1px);border-radius:1px;}
+.hero-figure{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:10px;}
+.hero-figure svg{display:block;width:100%;height:auto;}
+.trace-dot{fill:var(--vermilion);}
+@media (prefers-reduced-motion: no-preference){
+  .trace-dot{offset-path:path('M24 232 Q190 -34 356 232');offset-distance:0%;animation:trace 9s cubic-bezier(.45,0,.55,1) infinite;}
+  @keyframes trace{0%{offset-distance:0%;opacity:.4}12%{opacity:1}50%{offset-distance:52%;opacity:1}88%{opacity:1}100%{offset-distance:100%;opacity:.4}}
+}
+
+/* ===== 档案统计条 ===== */
+.intro{background:var(--card);border:1px solid var(--rule);border-radius:7px;padding:30px 32px;margin:8px 0 28px;}
+.intro-title{font-family:var(--serif);font-weight:700;font-size:21px;color:var(--ink);margin-bottom:12px;}
+.intro-body{font-size:16px;line-height:1.85;color:var(--ink-soft);text-wrap:pretty;}
+.intro-note{margin-top:14px;padding-top:14px;border-top:1px solid var(--rule);font-size:14.5px;line-height:1.8;color:var(--ink-faint);}
+.stats{display:flex;flex-wrap:wrap;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:18px 4px;margin:8px 0 44px;}
+.stat{flex:1 1 25%;min-width:130px;display:flex;align-items:baseline;gap:10px;padding:6px 18px;border-left:1px solid var(--rule);}
+.stat:first-child{border-left:0;}
+.stat b{font-family:var(--serif);font-weight:700;font-size:30px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1;}
+.stat span{font-size:13px;color:var(--ink-faint);}
+
+/* ===== 区块标题 ===== */
+.section-head{display:flex;align-items:baseline;gap:12px 14px;flex-wrap:wrap;margin-bottom:22px;}
+.section-head::before{content:"";width:26px;height:3px;background:var(--vermilion);transform:translateY(-3px);flex:none;}
+.section-head h2{font-family:var(--serif);font-weight:700;font-size:23px;letter-spacing:.02em;}
+.section-head .hint{font-size:13px;color:var(--ink-faint);}
+
+/* ===== 课题档案卡（横向档案条） ===== */
+.cards{display:flex;flex-direction:column;gap:22px;}
+.card{
+  display:grid;grid-template-columns:290px 1fr;background:var(--card);
+  border:1px solid var(--rule);border-radius:6px;overflow:hidden;
+  transition:border-color .18s ease, box-shadow .18s ease;
+}
+.card:hover{border-color:#a9b5b1;box-shadow:inset 3px 0 0 var(--vermilion);}
+.card-figure{position:relative;background:#e9eeec;border-right:1px solid var(--rule);min-width:0;}
+.card-figure img{width:100%;height:100%;aspect-ratio:4/3;object-fit:contain;display:block;}
+.card-figure .corner{position:absolute;top:10px;left:10px;background:rgba(28,38,34,.86);color:#f3f1e8;font-family:var(--serif);font-weight:700;font-size:15px;padding:3px 10px;border-radius:3px;letter-spacing:.05em;}
+.card-body{padding:24px 26px;display:flex;flex-direction:column;min-width:0;}
+.card-top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+.card-code{font-family:var(--serif);font-weight:700;font-size:27px;color:var(--jade);font-variant-numeric:tabular-nums;letter-spacing:.02em;}
+.card-title{font-family:var(--serif);font-weight:700;font-size:20px;color:var(--ink);text-wrap:balance;}
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin:11px 0 9px;}
+.tag{font-size:12.5px;color:#3f5449;border:1px solid #c3cfcb;border-radius:3px;padding:2px 9px;background:#f3f6f4;white-space:nowrap;}
+.card-desc{font-size:14.5px;color:var(--ink-soft);line-height:1.8;text-wrap:pretty;overflow-wrap:break-word;}
+.card-actions{margin-top:auto;padding-top:18px;display:flex;align-items:center;flex-wrap:wrap;gap:10px;}
+.btn{appearance:none;font-family:var(--sans);font-size:15px;font-weight:500;border-radius:4px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border:1px solid transparent;transition:background-color .15s ease,border-color .15s ease,color .15s ease;}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:var(--ink);color:#f4f2ea;}
+.btn-primary:hover{background:#000;}
+.btn-mobile{background:transparent;color:var(--ink-soft);border-color:#b9c3c0;}
+.btn-mobile:hover{border-color:var(--jade);color:var(--jade);}
+.btn-mobile.is-disabled{color:#9aa7a2;border-color:#dde3e1;background:transparent;cursor:not-allowed;}
+.btn-mobile.is-disabled:hover{border-color:#dde3e1;color:#9aa7a2;}
+.btn-record{margin-left:auto;background:transparent;color:var(--vermilion);border:0;padding:8px 6px;font-size:14px;font-weight:500;}
+.btn-record:hover{text-decoration:underline;text-underline-offset:4px;}
+.device-note{display:none;width:100%;font-size:13px;color:var(--vermilion);background:var(--vermilion-soft);border-radius:3px;padding:7px 11px;margin-top:4px;}
+body.view-mobile .device-note{display:block;}
+body.view-mobile .btn-primary .ico-desktop{display:none;}
+body.view-desktop .btn-primary .ico-phone{display:none;}
+
+/* ===== 重做区 ===== */
+.rebuild{margin-top:26px;border:1px dashed #c2ccc8;border-radius:6px;padding:18px 22px;background:rgba(251,251,248,.6);font-size:14px;color:var(--ink-faint);display:flex;gap:14px;align-items:flex-start;}
+.rebuild svg{flex:none;margin-top:3px;}
+.rebuild b{color:var(--ink-soft);font-weight:500;}
+.rebuild .reb-codes{font-family:var(--serif);color:var(--vermilion);font-weight:600;white-space:nowrap;}
+
+/* ===== 页脚 ===== */
+footer{border-top:1px solid var(--rule);margin-top:56px;padding:24px 0 40px;font-size:13px;color:var(--ink-faint);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+
+/* ===== 教研记录弹层 ===== */
+.modal{position:fixed;inset:0;z-index:1000;display:none;}
+.modal.show{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:28px;}
+.modal.show.sheet{justify-content:flex-end;padding:0;}
+.modal-scrim{position:absolute;inset:0;background:rgba(20,30,27,.46);}
+.modal-box{position:relative;background:var(--card);border-radius:7px;width:100%;max-width:680px;max-height:86vh;overflow-y:auto;overscroll-behavior:contain;box-shadow:0 18px 50px rgba(20,30,27,.25);}
+.sheet .modal-box{max-width:none;border-radius:14px 14px 0 0;max-height:92vh;}
+.modal-head{padding:24px 26px 16px;border-bottom:1px solid var(--rule);position:sticky;top:0;background:var(--card);z-index:2;}
+.modal-head h2{font-family:var(--serif);font-weight:700;font-size:21px;padding-right:40px;}
+.modal-head .m-sub{font-size:13px;color:var(--ink-faint);margin-top:3px;}
+.modal-progress{margin-top:9px;font-size:12.5px;color:var(--jade);font-weight:500;}
+.modal-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border:0;background:transparent;border-radius:4px;cursor:pointer;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:#eef1ef;}
+.modal-body{padding:20px 26px 8px;}
+.field{margin-bottom:18px;}
+.field-label{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:7px;}
+.status-pill{font-size:11.5px;font-weight:400;padding:1px 8px;border-radius:10px;border:1px solid;}
+.status-pill.done{color:var(--jade);border-color:var(--jade);background:var(--jade-soft);}
+.status-pill.pending{color:var(--vermilion);border-color:#e2b0a9;background:var(--vermilion-soft);}
+.field-value{font-size:14px;line-height:1.85;color:var(--ink-soft);background:#f1f4f2;border:1px solid transparent;border-radius:4px;padding:11px 13px;white-space:pre-wrap;overflow-wrap:break-word;}
+.field-value.pending{color:var(--vermilion);background:var(--vermilion-soft);}
+.field-value.pending::before{content:"待记录";font-weight:500;}
+.field textarea{width:100%;min-height:74px;font-family:var(--sans);font-size:14px;line-height:1.8;color:var(--ink);background:#fff;border:1px solid var(--rule);border-radius:4px;padding:10px 12px;resize:vertical;display:none;}
+.field textarea:focus{border-color:var(--vermilion);outline:0;box-shadow:0 0 0 2px rgba(194,58,43,.14);}
+.modal.editing .field-value{display:none;}
+.modal.editing .field textarea{display:block;}
+.modal-foot{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--rule);padding:14px 26px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.saved-hint{font-size:13px;color:var(--ink-faint);margin-right:auto;}
+.btn-ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--rule);font-size:13.5px;padding:9px 15px;}
+.btn-ghost:hover{border-color:var(--ink-soft);color:var(--ink);}
+.btn-danger{background:transparent;border:0;color:#a3716a;font-size:12.5px;padding:6px;cursor:pointer;}
+.btn-danger:hover{color:var(--vermilion);text-decoration:underline;text-underline-offset:3px;}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:34px;transform:translate(-50%,14px);background:var(--ink);color:#f4f2ea;font-size:13.5px;padding:10px 20px;border-radius:4px;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;z-index:1100;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+
+/* ===== 响应式 ===== */
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;gap:26px;padding:40px 0 30px;}
+  .hero-figure{max-width:440px;}
+  .card{grid-template-columns:1fr;}
+  .card-figure{border-right:0;border-bottom:1px solid var(--rule);}
+  .card-figure img{aspect-ratio:16/9;}
+  .btn-record{margin-left:0;width:100%;justify-content:center;border-top:1px solid var(--rule);border-radius:0;padding-top:14px;}
+}
+@media (max-width:560px){
+  .wrap{padding:0 17px;}
+  .topbar-inner{padding:10px 17px;}
+  .brand .brand-text{display:none;}
+  .hero{padding:30px 0 24px;}
+  .hero h1{font-size:27px;}
+  .section-head .hint{flex-basis:100%;margin-left:40px;font-size:14px;}
+  .stat{flex:1 1 50%;border-left:0;padding:10px 14px;}
+  .stat span{font-size:14px;}
+  .stat:nth-child(odd){border-right:1px solid var(--rule);}
+  .stat:nth-child(n+3){border-top:1px solid var(--rule);}
+  .card-body{padding:19px 18px;}
+  .card-desc{font-size:14.5px;}
+  .tag{font-size:14px;}
+  .device-note{font-size:14px;}
+  .card-actions .btn{flex:1 1 auto;justify-content:center;}
+  .btn-mobile.is-disabled{flex:1 1 auto;justify-content:center;}
+  .btn-record{padding-top:16px;padding-bottom:16px;}
+  .field textarea{font-size:16px;}
+  .modal.show{padding:0;}
+  .modal-box{max-height:94vh;border-radius:14px 14px 0 0;}
+  footer{flex-direction:column;}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+}
+</style>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','canvas'] }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js" id="MathJax-script"></script>
+</head>
+<body class="view-desktop">
+<a class="skip-link" href="#cards">跳到课题列表</a>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><path d="M3 26 Q16 -6 29 26" fill="none" stroke="#3f7d5c" stroke-width="2.4"/><line x1="16" y1="2" x2="16" y2="28" stroke="#1c2622" stroke-width="1" stroke-dasharray="3 3"/><circle cx="16" cy="4.4" r="3.4" fill="#c23a2b"/></svg>
+      <span class="brand-text">动态板书 · 教研档案</span>
+    </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ===== Hero ===== -->
+  <section class="hero">
+    <div>
+      <h1>初中数学压轴题<br>动态板书的设计与应用研究</h1>
+      <p class="sub">16:9 全屏翻页课堂板书，把几何动点与分类讨论的运动过程，变成可拖动、可观察、可归纳的课堂现场。</p>
+      <ul class="scene">
+        <li>教师一体机授课</li>
+        <li>学生 iPad 自学，支持手写笔记</li>
+      </ul>
+    </div>
+    <figure class="hero-figure" aria-label="抛物线动点轨迹示意">
+      <svg viewBox="0 0 380 280" role="img" aria-hidden="true">
+        <defs>
+          <pattern id="hg" width="28" height="28" patternUnits="userSpaceOnUse">
+            <path d="M28 0H0V28" fill="none" stroke="#dde4e2" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="380" height="280" fill="url(#hg)"/>
+        <line x1="14" y1="232" x2="368" y2="232" stroke="#1c2622" stroke-width="1.6"/>
+        <line x1="190" y1="12" x2="190" y2="262" stroke="#1c2622" stroke-width="1.6"/>
+        <path d="M364 232 l-7 -3.5 v7 z" fill="#1c2622"/>
+        <path d="M190 12 l-3.5 7 h7 z" fill="#1c2622"/>
+        <line x1="190" y1="14" x2="190" y2="250" stroke="#1c2622" stroke-width="1.3" stroke-dasharray="5 5" opacity=".55"/>
+        <path d="M24 232 Q190 -34 356 232" fill="none" stroke="#3f7d5c" stroke-width="2.6"/>
+        <circle cx="60" cy="160" r="4" fill="none" stroke="#3f7d5c" stroke-width="1.6"/>
+        <circle cx="120" cy="62" r="4" fill="none" stroke="#3f7d5c" stroke-width="1.6"/>
+        <circle cx="262" cy="62" r="4" fill="none" stroke="#3f7d5c" stroke-width="1.6"/>
+        <circle cx="322" cy="160" r="4" fill="none" stroke="#3f7d5c" stroke-width="1.6"/>
+        <circle class="trace-dot" cx="190" cy="20" r="6.5"/>
+      </svg>
+    </figure>
+  </section>
+
+  <!-- ===== 研究介绍（个人项目身份与研究说明） ===== -->
+  <section class="intro" aria-label="研究介绍">
+    <h2 class="intro-title">一线初中数学教师 · 个人行动研究</h2>
+    <p class="intro-body">关注几何动点与分类讨论类压轴题的教学难点，将抽象的运动过程转化为可交互的课堂板书。边开发、边在课堂中应用、边记录设计依据与教学效果，优先服务中考复习课堂。</p>
+  </section>
+
+  <!-- ===== 档案统计（数字来自两个在架板书实测：M002 17屏、M004 11屏） ===== -->
+  <section class="stats" aria-label="研究进度统计">
+    <div class="stat"><b>4</b><span>套在架课件</span></div>
+    <div class="stat"><b>18</b><span>板书总屏数</span></div>
+    <div class="stat"><b>4</b><span>可拖动动态探究页</span></div>
+    <div class="stat"><b>2&nbsp;年</b><span>持续建设周期</span></div>
+  </section>
+
+  <!-- ===== 课题档案卡片（新增课题：整段复制一个 <article>，图片 src 必须静态写在此处） ===== -->
+  <section id="cards">
+    <div class="section-head">
+      <h2>课题档案</h2>
+      <span class="hint">按当前设备推荐打开版本，避免手机版在电脑上显示异常</span>
+    </div>
+    <div class="cards">
+<!-- ============ M001 ============ -->
+      <article class="card">
+        <figure class="card-figure">
+          <img src="https://media.doubao.com/space/api/box/stream/download/all_by_mount_point/OVRZb7iyRooDVMxVEAucIyiLnpc"
+               width="3636" height="2778" loading="lazy"
+               alt="M001 板书题图：过 A(4,0)、B(-1,0)、C(0,4) 三点的抛物线与动点 P">
+        </figure>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-code">M001</span>
+            <h3 class="card-title">二次函数直角三角形存在性</h3>
+          </div>
+          <div class="tags">
+            <span class="tag">二次函数</span>
+            <span class="tag">直角三角形</span>
+            <span class="tag">动点分类</span>
+          </div>
+          <p class="card-desc">抛物线过 $A(4,0)$、$B(-1,0)$、$C(0,4)$，$P$ 是 $AC$ 上方抛物线上的动点。拖动 $P$，按直角在 $C$、$A$、$P$ 三种情况分类讨论，把"直角顶点在哪"从猜变成看得见。</p>
+          <div class="card-actions">
+            <a class="btn btn-primary" href="https://aka.doubaocdn.com/s/gwV666AiFb" target="_blank" rel="noopener noreferrer">
+              <svg class="ico-desktop" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12.5" rx="1.5"/><path d="M8 20h8M12 16.5V20"/></svg>
+              <svg class="ico-phone" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2"/><path d="M11 18.2h2"/></svg>
+              打开课堂板书
+            </a>
+            <button type="button" class="btn-record" onclick="openModal('m001')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h6M8 13h8M8 17h5"/></svg>
+              课题记录
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- ============ M002 ============ -->
+      <article class="card">
+        <figure class="card-figure">
+          <img src="https://media.doubao.com/space/api/box/stream/download/all_by_mount_point/FSxdbEfGho4bUoxXaHfcR2u0nTb"
+               width="3636" height="2778" loading="lazy"
+               alt="M002 板书题图：等腰三角形 ABC 中，动点 D 在底边 BC 上滑动，带动三角形 AEF 同步变形，图中标注角 α 等于 90 度">
+        </figure>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-code">M002</span>
+            <h3 class="card-title">等腰三角形存在性</h3>
+          </div>
+          <div class="tags">
+            <span class="tag">相似三角形</span>
+            <span class="tag">一线三等角模型</span>
+            <span class="tag">动点联动</span>
+          </div>
+          <p class="card-desc">等腰 $\triangle ABC$ 中 $AB=AC=10$、$BC=16$，$D$ 为 $BC$ 上的动点，旋转射线构造 $\triangle AEF$。拖动 $D$ 点，观察 $\triangle AEF$ 何时为等腰三角形，分类讨论三种成立情况，看清"主动点一动、被动图形跟着变"的因果关系。</p>
+          <div class="card-actions">
+            <a class="btn btn-primary" href="https://aka.doubaocdn.com/s/w6zuiM8GTV" target="_blank" rel="noopener noreferrer">
+              <svg class="ico-desktop" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12.5" rx="1.5"/><path d="M8 20h8M12 16.5V20"/></svg>
+              <svg class="ico-phone" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2"/><path d="M11 18.2h2"/></svg>
+              打开课堂板书
+            </a>
+            <button type="button" class="btn-record" onclick="openModal('m002')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h6M8 13h8M8 17h5"/></svg>
+              课题记录
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <!-- ============ M003 ============ -->
+      <article class="card">
+        <figure class="card-figure">
+          <img src="https://media.doubao.com/space/api/box/stream/download/all_by_mount_point/Vxxgb2wlKo0RyZxStwrcqRHznHh"
+               width="3636" height="2778" loading="lazy"
+               alt="M003 板书题图：抛物线与对称轴虚线，M 在对称轴、N 在抛物线上">
+        </figure>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-code">M003</span>
+            <h3 class="card-title">平行四边形存在性</h3>
+          </div>
+          <div class="tags">
+            <span class="tag">二次函数</span>
+            <span class="tag">平行四边形</span>
+            <span class="tag">动点分类</span>
+          </div>
+          <p class="card-desc">抛物线 $y=\frac{3}{5}x^2-\frac{12}{5}x$ 交 $x$ 轴于 $O$、$A$，$M$ 在对称轴上、$N$ 在抛物线上。拖动两点，直观对比"$OA$ 为边"与"$OA$ 为对角线"两种构造，看懂第四个顶点怎么由中点坐标跳出来。</p>
+          <div class="card-actions">
+            <a class="btn btn-primary" href="https://aka.doubaocdn.com/s/oVBqUFSqDr" target="_blank" rel="noopener noreferrer">
+              <svg class="ico-desktop" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12.5" rx="1.5"/><path d="M8 20h8M12 16.5V20"/></svg>
+              <svg class="ico-phone" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2"/><path d="M11 18.2h2"/></svg>
+              打开课堂板书
+            </a>
+            <button type="button" class="btn-record" onclick="openModal('m003')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h6M8 13h8M8 17h5"/></svg>
+              课题记录
+            </button>
+          </div>
+        </div>
+      </article>
+      <!-- ============ M004 ============ -->
+      <article class="card">
+        <figure class="card-figure">
+          <img src="https://media.doubao.com/space/api/box/stream/download/all_by_mount_point/EQcqbjkEzoFECTxGB2cc6eRxnJh"
+               width="3636" height="2778" loading="lazy"
+               alt="M004 动态探究画面：开口向下的抛物线与竖直虚线对称轴，抛物线上两个动点 A、B，左上角为参数 t 的滑杆">
+        </figure>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="card-code">M004</span>
+            <h3 class="card-title">轴定区间动 · 双动点函数值比较</h3>
+          </div>
+          <div class="tags">
+            <span class="tag">二次函数</span>
+            <span class="tag">轴定区间动</span>
+            <span class="tag">双动点</span>
+          </div>
+          <p class="card-desc">抛物线 $y=ax^2-2ax+4$ 的对称轴为 $x=1$，$A(m, y_1)$、$B(m+4, y_2)$ 在抛物线上同步滑动。拖动参数，观察两点关于对称轴对称的临界瞬间，探究 $y_1 \le y_2$ 时 $m$ 的取值范围，把绝对值不等式还原成看得见的几何关系。</p>
+          <div class="card-actions">
+            <a class="btn btn-primary" href="https://aka.doubaocdn.com/s/uq2ZUUYldc" target="_blank" rel="noopener noreferrer">
+              <svg class="ico-desktop" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12.5" rx="1.5"/><path d="M8 20h8M12 16.5V20"/></svg>
+              <svg class="ico-phone" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2"/><path d="M11 18.2h2"/></svg>
+              打开课堂板书
+            </a>
+            <button type="button" class="btn-record" onclick="openModal('m004')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h6M8 13h8M8 17h5"/></svg>
+              课题记录
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer>
+    <span>一线初中数学教师 · 个人教研项目 · 优先服务中考复习课堂</span>
+    <span>动态板书研究 · <span id="year">2026</span></span>
+</footer>
+</main>
+<!-- ===== 教研记录单弹层 ===== -->
+<div class="modal" id="researchModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+  <div class="modal-scrim" onclick="closeModal()"></div>
+  <div class="modal-box" role="document">
+    <div class="modal-head">
+      <h2 id="modalTitle"></h2>
+      <div class="m-sub" id="modalSub"></div>
+      <div class="modal-progress" id="modalProgress"></div>
+      <button type="button" class="modal-close" onclick="closeModal()" aria-label="关闭课题记录">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <div class="field-label">1. 选题依据<span class="status-pill" data-pill="basis"></span></div>
+        <div class="field-value" id="v_basis"></div>
+        <textarea id="t_basis" aria-label="编辑选题依据"></textarea>
+      </div>
+      <div class="field">
+        <div class="field-label">2. 生成情况（作图 / 板书完成度）<span class="status-pill" data-pill="generate"></span></div>
+        <div class="field-value" id="v_generate"></div>
+        <textarea id="t_generate" aria-label="编辑生成情况"></textarea>
+      </div>
+      <div class="field">
+        <div class="field-label">3. 课堂使用（实际上课情况）<span class="status-pill" data-pill="class_use"></span></div>
+        <div class="field-value" id="v_class_use"></div>
+        <textarea id="t_class_use" aria-label="编辑课堂使用情况"></textarea>
+      </div>
+      <div class="field">
+        <div class="field-label">4. 学生反应（卡点与理解变化）<span class="status-pill" data-pill="feedback"></span></div>
+        <div class="field-value" id="v_feedback"></div>
+        <textarea id="t_feedback" aria-label="编辑学生反应"></textarea>
+      </div>
+      <div class="field">
+        <div class="field-label">5. 改进方向（下次迭代）<span class="status-pill" data-pill="improve"></span></div>
+        <div class="field-value" id="v_improve"></div>
+        <textarea id="t_improve" aria-label="编辑改进方向"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="saved-hint" id="savedHint">记录仅保存在本浏览器，不会上传</span>
+      <button type="button" class="btn-danger" id="btnClear">清空本机记录</button>
+      <button type="button" class="btn btn-ghost" id="btnCopy">复制全部记录</button>
+      <button type="button" class="btn btn-primary" id="btnEdit">编辑记录</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+  "use strict";
+
+  /* ===== 内置基线数据（选题依据随板书沉淀；其余字段留空，在记录单里随时补） ===== */
+  var FIELDS = [
+    {key:"basis",     label:"选题依据"},
+    {key:"generate",  label:"生成情况"},
+    {key:"class_use", label:"课堂使用"},
+    {key:"feedback",  label:"学生反应"},
+    {key:"improve",   label:"改进方向"}
+  ];
+
+  var researchData = {
+    m002: {
+      title:"M002 · 等腰三角形存在性",
+      sub:"相似三角形 · 一线三等角 · 等腰三角形存在性",
+      basis:"这道题的难点不只是等腰三角形的三种分类；D 点在 BC 上移动时，会带动 △AEF 同步变形，等腰成立的位置跟着 D 的位置一起改变。静态板书只能截取几个瞬间的图片，学生看不到“D 一动，图形跟着变，才会出现等腰”这个因果关系。动态拖动能把这个联动过程展示出来，帮学生看懂主动点如何影响被动图形。",
+      generate:"已完成（17 屏，含 1 个全屏可拖动动态探究页）",
+      class_use:"", feedback:"", improve:""
+    },
+    m004: {
+      title:"M004 · 轴定区间动 · 双动点函数值比较",
+      sub:"二次函数 · 轴定区间动 · 双动点函数值比较",
+      basis:"学生做这道题通常直接列绝对值不等式 |m+3|≤|m−1| 硬解，能算出 m≤−1，但并不理解为什么 A、B 两点关于对称轴 x＝1 对称时就是临界点。A、B 横坐标固定差 4，在开口向下的抛物线上同步滑动，学生很难脑补：AB 越往左滑，A 离对称轴越远、B 越近，只有对称瞬间 y₁＝y₂。拖动动态图形，学生能直观看到 A 左移时 B 跟着左移，对称位置一到 y₁＝y₂，一过就 y₁＜y₂，把抽象的绝对值不等式还原成看得见的几何关系。",
+      generate:"已完成（11 屏，含 1 个全屏可拖动动态探究页）",
+      class_use:"", feedback:"", improve:""
+    }
+  };
+
+  /* —— 重做课题的选题依据留存，重做时直接复制回 researchData ——
+     M001 直角三角形存在性：学生做这道题很容易先固定一个直角顶点去列式，经常漏掉另外两种情况。静态图只能分开画出三张独立图形，看不出动点 P 滑动时直角顶点会跟着切换。拖动动态图形，学生可以直观看到：P 移动过程里，直角顶点可以落在 A、C 或者 P 自身，能看懂三种分类是怎么出现的，而不是死记硬背三类图。
+     M003 平行四边形存在性：学生很容易分不清“OA 作为边”和“OA 作为对角线”两种构造方式，经常漏解，或是死记中点坐标公式。动态板书可以拖动点 N，直观对比两种构造方法下第四个顶点怎么生成，看懂平行四边形顶点配对的逻辑，理解分类背后的几何道理。 */
+
+  var STORE_KEY = "banshu_research_v1";
+
+  function loadStore(){
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+    catch(e){ return {}; }
+  }
+  function saveStore(data){
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch(e){}
+  }
+  var store = loadStore();
+
+  /* ===== 弹层 ===== */
+  var modal = document.getElementById("researchModal");
+  var lastTrigger = null;
+  var currentKey = null;
+  var saveTimer = null;
+
+  function mergedRecord(key){
+    var base = Object.assign({}, researchData[key]);
+    var user = store[key] || {};
+    FIELDS.forEach(function(f){
+      if (user[f.key] && user[f.key].trim()) base[f.key] = user[f.key];
+    });
+    return base;
+  }
+
+  function openModal(key){
+    currentKey = key;
+    lastTrigger = document.activeElement;
+    var rec = mergedRecord(key);
+    document.getElementById("modalTitle").textContent = rec.title;
+    document.getElementById("modalSub").textContent = rec.sub;
+    FIELDS.forEach(function(f){
+      var val = rec[f.key] || "";
+      var box = document.getElementById("v_" + f.key);
+      var ta = document.getElementById("t_" + f.key);
+      box.textContent = val;
+      box.classList.toggle("pending", !val.trim());
+      ta.value = val;
+      ta.placeholder = "待记录……";
+      var pill = document.querySelector('[data-pill="' + f.key + '"]');
+      var filled = val.trim().length > 0;
+      pill.textContent = filled ? "已记录" : "待记录";
+      pill.className = "status-pill " + (filled ? "done" : "pending");
+    });
+    updateProgress(rec);
+    setEditing(false);
+    modal.classList.toggle("sheet", window.matchMedia("(max-width:640px)").matches);
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden","false");
+    document.body.style.overflow = "hidden";
+    modal.querySelector(".modal-close").focus();
+  }
+
+  function closeModal(){
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden","true");
+    document.body.style.overflow = "";
+    if (lastTrigger && lastTrigger.focus) lastTrigger.focus();
+    currentKey = null;
+  }
+
+  function updateProgress(rec){
+    var n = FIELDS.filter(function(f){ return (rec[f.key]||"").trim(); }).length;
+    document.getElementById("modalProgress").textContent = "已记录 " + n + " / 5 项";
+  }
+
+  function setEditing(on){
+    modal.classList.toggle("editing", on);
+    var btn = document.getElementById("btnEdit");
+    btn.textContent = on ? "完成编辑" : "编辑记录";
+    if (on){
+      var first = document.getElementById("t_basis");
+      first.focus();
+      first.setSelectionRange(first.value.length, first.value.length);
+    }
+  }
+
+  function currentEdits(){
+    var o = {};
+    FIELDS.forEach(function(f){ o[f.key] = document.getElementById("t_" + f.key).value; });
+    return o;
+  }
+
+  function persistEdits(silent){
+    if (!currentKey) return;
+    var edits = currentEdits();
+    store[currentKey] = edits;
+    saveStore(store);
+    var rec = mergedRecord(currentKey);
+    FIELDS.forEach(function(f){
+      var val = edits[f.key] || "";
+      var box = document.getElementById("v_" + f.key);
+      box.textContent = val;
+      box.classList.toggle("pending", !val.trim());
+      var pill = document.querySelector('[data-pill="' + f.key + '"]');
+      var filled = val.trim().length > 0;
+      pill.textContent = filled ? "已记录" : "待记录";
+      pill.className = "status-pill " + (filled ? "done" : "pending");
+    });
+    updateProgress(rec);
+    if (!silent){
+      var h = new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"});
+      document.getElementById("savedHint").textContent = "已保存到本机 · " + h;
+    }
+  }
+
+  FIELDS.forEach(function(f){
+    document.getElementById("t_" + f.key).addEventListener("input", function(){
+      setEditing(true);
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(function(){ persistEdits(true); }, 400);
+    });
+  });
+
+  document.getElementById("btnEdit").addEventListener("click", function(){
+    if (modal.classList.contains("editing")){ persistEdits(false); setEditing(false); }
+    else setEditing(true);
+  });
+
+  document.getElementById("btnCopy").addEventListener("click", function(){
+    if (!currentKey) return;
+    var rec = mergedRecord(currentKey);
+    var lines = [rec.title, rec.sub, ""];
+    FIELDS.forEach(function(f, i){
+      lines.push((i+1) + ". " + f.label + "：" + ((rec[f.key]||"").trim() || "待记录"));
+    });
+    var text = lines.join("\n");
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ toast("全部记录已复制"); },
+        function(){ fallbackCopy(text); });
+    } else fallbackCopy(text);
+  });
+  function fallbackCopy(text){
+    var ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); toast("全部记录已复制"); }
+    catch(e){ toast("复制失败，请手动选择文字复制"); }
+    document.body.removeChild(ta);
+  }
+
+  document.getElementById("btnClear").addEventListener("click", function(){
+    if (!currentKey) return;
+    if (window.confirm("清空本浏览器中为该课题保存的记录？内置的选题依据与生成情况不受影响。")){
+      delete store[currentKey];
+      saveStore(store);
+      openModal(currentKey);
+      toast("已清空本机记录");
+    }
+  });
+
+  /* Esc 关闭 + 焦点陷阱 */
+  modal.addEventListener("keydown", function(e){
+    if (e.key === "Escape"){ closeModal(); return; }
+    if (e.key !== "Tab") return;
+    var nodes = modal.querySelectorAll("button, textarea, [href]");
+    var list = Array.prototype.filter.call(nodes, function(n){ return n.offsetParent !== null; });
+    if (!list.length) return;
+    var first = list[0], last = list[list.length-1];
+    if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  });
+  window.openModal = openModal;
+  window.closeModal = closeModal;
+
+  /* ===== toast ===== */
+  var toastEl = document.getElementById("toast"), toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2200);
+  }
+  window.mobilePendingTip = function(){
+    toast("请横屏使用，体验更佳");
+  };
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
